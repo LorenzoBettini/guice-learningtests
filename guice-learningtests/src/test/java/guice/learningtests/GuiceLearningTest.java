@@ -2,6 +2,7 @@ package guice.learningtests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 
@@ -59,5 +60,20 @@ public class GuiceLearningTest {
 		MyGenericClient client = injector.getInstance(MyGenericClient.class);
 		assertNotNull(client.service);
 		assertEquals(MyService.class, client.service.getClass());
+	}
+
+	@Test
+	public void bindToInstance() {
+		Module module = new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(IMyService.class).toInstance(new MyService());
+			}
+		};
+		Injector injector = Guice.createInjector(module);
+		MyGenericClient client1 = injector.getInstance(MyGenericClient.class);
+		MyGenericClient client2 = injector.getInstance(MyGenericClient.class);
+		assertNotNull(client1.service);
+		assertSame(client1.service, client2.service);
 	}
 }
