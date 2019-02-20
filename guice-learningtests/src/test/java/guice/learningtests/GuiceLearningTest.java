@@ -12,7 +12,11 @@ import com.google.inject.Module;
 
 public class GuiceLearningTest {
 
-	private static class MyService {
+	private static interface IMyService {
+
+	}
+
+	private static class MyService implements IMyService {
 
 	}
 
@@ -25,11 +29,28 @@ public class GuiceLearningTest {
 		}
 	}
 
+	private static class MyGenericClient {
+		IMyService service;
+
+		@Inject
+		public MyGenericClient(IMyService service) {
+			this.service = service;
+		}
+	}
+
 	@Test
 	public void canInstantiateConcreteClassesWithoutConfiguration() {
 		Module module = new AbstractModule() {};
 		Injector injector = Guice.createInjector(module);
 		MyClient client = injector.getInstance(MyClient.class);
+		assertNotNull(client.service);
+	}
+
+	@Test
+	public void injectAbstractType() {
+		Module module = new AbstractModule() {};
+		Injector injector = Guice.createInjector(module);
+		MyGenericClient client = injector.getInstance(MyGenericClient.class);
 		assertNotNull(client.service);
 	}
 }
