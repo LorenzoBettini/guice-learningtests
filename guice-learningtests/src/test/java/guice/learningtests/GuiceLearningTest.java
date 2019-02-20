@@ -1,5 +1,6 @@
 package guice.learningtests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
@@ -48,9 +49,15 @@ public class GuiceLearningTest {
 
 	@Test
 	public void injectAbstractType() {
-		Module module = new AbstractModule() {};
+		Module module = new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(IMyService.class).to(MyService.class);
+			}
+		};
 		Injector injector = Guice.createInjector(module);
 		MyGenericClient client = injector.getInstance(MyGenericClient.class);
 		assertNotNull(client.service);
+		assertEquals(MyService.class, client.service.getClass());
 	}
 }
