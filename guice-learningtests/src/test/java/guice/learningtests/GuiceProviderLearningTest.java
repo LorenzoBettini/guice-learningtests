@@ -1,6 +1,9 @@
 package guice.learningtests;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
 
 import org.junit.Test;
 
@@ -30,6 +33,11 @@ public class GuiceProviderLearningTest {
 		}
 	}
 
+	private static class MyFileWrapper {
+		@Inject
+		File file;
+	}
+
 	@Test
 	public void injectProviderExample() {
 		Module module = new AbstractModule() {
@@ -41,5 +49,20 @@ public class GuiceProviderLearningTest {
 		Injector injector = Guice.createInjector(module);
 		MyClientWithInjectedProvider client = injector.getInstance(MyClientWithInjectedProvider.class);
 		assertNotNull(client.getService());
+	}
+
+	@Test
+	public void providerBinding() {
+		Module module = new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(File.class)
+					.toProvider(
+						() -> new File("src/test/resources/afile.txt"));
+			}
+		};
+		Injector injector = Guice.createInjector(module);
+		MyFileWrapper fileWrapper = injector.getInstance(MyFileWrapper.class);
+		assertTrue(fileWrapper.file.exists());
 	}
 }
