@@ -49,4 +49,20 @@ public class GuiceFieldAndMethodInjectionLearningTest {
 		assertNotNull(client2.service);
 	}
 
+	@Test
+	public void injectMembers() {
+		Module module = new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(IMyService.class).to(MyService.class);
+			}
+		};
+		Injector injector = Guice.createInjector(module);
+		MyClientWithInjectedField client1 = new MyClientWithInjectedField();
+		injector.injectMembers(client1);
+		MyClientWithInjectedMethod client2 = new MyClientWithInjectedMethod();
+		injector.injectMembers(client2);
+		assertNotNull(client1.service);
+		assertNotNull(client2.service);
+	}
 }
