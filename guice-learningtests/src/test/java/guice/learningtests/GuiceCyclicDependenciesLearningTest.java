@@ -11,6 +11,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
+import com.google.inject.Provides;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 
@@ -81,6 +82,31 @@ public class GuiceCyclicDependenciesLearningTest {
 				install(new FactoryModuleBuilder()
 					.implement(IMyController.class, MyController.class)
 					.build(MyControllerFactory.class));
+			}
+		};
+		Injector injector = Guice.createInjector(module);
+		MyView view = injector.getInstance(MyView.class);
+		assertSame(view, ((MyController) view.controller).view);
+		assertNotNull(((MyController) view.controller).repository);
+	}
+
+	@Test
+	public void providesMethod() {
+		Module module = new AbstractModule() {
+			@Override
+			protected void configure() {
+				bind(IMyRepository.class).to(MyRepository.class);
+				install(new FactoryModuleBuilder()
+					.implement(IMyController.class, MyController.class)
+					.build(MyControllerFactory.class));
+				// don't bind the provider here
+			}
+
+			@Provides // the parameter will be injected
+			MyView view(MyControllerFactory controllerFactory) {
+				MyView view = new MyView();
+				view.setController(controllerFactory.create(view));
+				return view;
 			}
 		};
 		Injector injector = Guice.createInjector(module);
